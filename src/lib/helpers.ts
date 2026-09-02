@@ -67,6 +67,7 @@ async function startBrowser(
   agamaServer: string
 ) {
   url = agamaServer;
+  const downloadFolder = "/root/Downloads";
   browser = await puppeteer.launch({
     // "webDriverBiDi" does not work with old FireFox, comment it out if needed
     protocol: "webDriverBiDi",
@@ -80,6 +81,22 @@ async function startBrowser(
       width: 1280,
       height: 800,
     },
+    // Firefox download configuration
+    extraPrefsFirefox: {
+      // 1. Force Firefox to ALWAYS ask where to save a file (prompt = false behavior)
+      'browser.download.useDownloadDir': false,
+      // 2. Set default download behavior (0: Desktop, 1: Downloads, 2: Custom folder)
+      'browser.download.folderList': 2,
+      'browser.download.dir': downloadFolder,
+      // 3. Prevent Firefox from automatically saving specific MIME types without prompting
+      'browser.helperApps.neverAsk.saveToDisk': 'application/json,text/plain,application/octet-stream',
+    },
+    args: [
+      '--pref=browser.download.useDownloadDir=false',
+      '--pref=browser.download.folderList=2',
+      `--pref=browser.download.dir=${downloadFolder}`,
+      '--pref=browser.helperApps.neverAsk.saveToDisk=application/json,text/plain,application/octet-stream'
+    ],
     ...browserSettings(agamaBrowser),
   });
 
